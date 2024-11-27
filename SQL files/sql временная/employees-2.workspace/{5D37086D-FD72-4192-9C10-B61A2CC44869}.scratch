@@ -1,0 +1,14 @@
+SELECT employees.first_name, departments.department_name
+FROM employees
+INNER JOIN departments ON employees.department_id = departments.department_id;
+
+SHOW COLUMNS FROM employees;
+
+select * from employees.employees;
+
+alter table employees
+add column department_id INT;
+
+update employees.employees
+set department_id = 2
+where first_name = 'Sam';

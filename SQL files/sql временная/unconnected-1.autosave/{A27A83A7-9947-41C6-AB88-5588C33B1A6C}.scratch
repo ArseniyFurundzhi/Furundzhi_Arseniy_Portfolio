@@ -1,0 +1,232 @@
+SELECT * FROM employees.employees
+WHERE department = 'HR';
+
+SELECT * FROM employees.employees;
+
+alter table employees
+add column department varchar(50);
+
+SELECT column_name, data_type FROM information_schema.columns
+WHERE table_name = 'employees';
+
+update employees.employees
+set department = 'HR'
+where employee_id = 1;
+
+update employees.employees
+set department = 'IT'
+where employee_id = 2;
+
+update employees.employees
+set department = 'HR'
+where employee_id = 3;
+
+update employees.employees
+set department = 'management'
+where employee_id = 4;
+
+SELECT * FROM employees.employees
+WHERE TRIM(department) = 'IT';
+
+SELECT * FROM employees.employees;
+
+SELECT COUNT(*) FROM employees.employees;
+
+select department as dep, count(*) as count from employees.employees group by department;
+
+select sum(salary) from employees;
+
+select department, avg(salary)
+from employees
+group by department
+having avg(salary) > 52000;
+
+select department, sum(salary)
+from employees
+group by department
+having sum(salary) > 100000;
+
+SELECT employees.first_name, departments.department_name
+FROM employees
+INNER JOIN departments ON employees.department_id = departments.department_id;
+
+select employees.first_name, employees.salary
+from employees
+where salary > (select avg(salary) from employees);
+
+select department, avg_salary
+from (
+	select department, avg(salary) as avg_salary
+    from employees
+    group by department
+) as high_salary_departments
+where avg_salary > 53000;
+
+select department, avg(salary)
+from employees.employees
+group by department;
+
+select first_name, salary
+from employees
+where salary > (select avg(salary) from employees);
+
+select department, sum_salary
+from (
+	select department, sum(salary) as sum_salary
+	from employees
+    group by department
+) as hi_sum_salary_department
+where sum_salary > 100000;
+
+select department, 
+	(select min(salary)
+    from employees as sub
+    where sub.department = main.department) as min_salary
+from employees as main
+group by department;
+
+select first_name, department, salary, (select avg(salary) from employees as sub
+     where sub.department = main.department) as avg_salary
+from employees as main
+where salary >= (
+	select avg(salary)
+	 from employees as sub
+     where sub.department = main.department);
+     
+select department, employee_count
+from (
+	select department, count(*) as employee_count
+    from employees
+    group by department
+) as department_count
+where employee_count > 1;
+
+select department, sum(salary) as total_salary
+from employees
+group by department
+having sum(salary) < (select avg(sum_salary)
+					from (
+						select sum(salary) as sum_salary
+                        from employees
+                        group by department) as dept_totals);
+                        
+select first_name, department, salary
+from employees
+where department in (select department
+					from employees
+                    group by department
+                    having min(salary) > 45000);
+                    
+SELECT first_name, salary,
+       CASE 
+           WHEN salary < 55000 THEN 'Low'
+           WHEN salary BETWEEN 50000 AND 55000 THEN 'Medium'
+           ELSE 'High'
+       END AS salary_category
+FROM employees;
+
+SELECT first_name, salary,
+       CASE 
+           WHEN salary > 55000 THEN 'Top Performer'
+           ELSE 'Standard'
+       END AS performance_level
+FROM employees;
+
+
+select first_name, salary, 
+		case
+			when salary < 40000 then 'Junior'
+            when salary between 40000 and 70000 then 'Middle'
+            else 'Senioor'
+		end as class
+from employees;
+
+select first_name, department, 
+		case
+			when department = 'IT' or department = 'HR' then 'Core Department'
+            else 'Support Department'
+		end as department_category
+from employees;
+
+select first_name, salary,
+		case
+			when salary > (select avg(salary) from employees) then 'Above Avarage'
+            else 'Below Avarage'
+		end as salary_and_avarage 
+from employees;
+
+-- оптимизируем 
+
+with avg_salary as (
+	select avg(salary) as avg_sal
+    from employees)
+
+select first_name, salary, 
+		case
+			when salary > avg_sal then 'Above Avarage'
+            else 'Below Avarage'
+		end as salary_and_avarage 
+from employees, avg_salary;
+
+-- другой способ
+
+select first_name, salary, 
+		case
+			when salary > avg_salary.avg_sal then 'Above Avarage'
+            else 'Below Avarage'
+		end as salary_and_avarage 
+from employees, (select avg(salary) as avg_sal from employees) as avg_salary;
+
+
+-- Агрегирующие функции
+
+
+select count(department_id) from employees;
+
+select * from employees;
+
+select department, count(*)
+from employees
+group by department;
+
+select department, max(salary)
+from employees
+group by department
+having max(salary) > 70000;
+
+select department, sum(salary)
+from employees
+group by department
+having sum(salary) > 150000;
+
+select department, avg(salary) as avg_department_salary, 
+(avg(salary) - (select avg(salary) from employees)) as difference
+from employees
+group by department
+having avg(salary) > (select avg(salary) from employees);
+
+-- join
+
+select employees.first_name, departments.department_name
+from employees
+RIGHT join departments on employees.department_id = departments.department_id;
+
+select e.first_name, e.last_name, d.department_name
+from employees e 
+join departments d on e.department_id = d.department_id;
+
+select e.first_name, e.last_name, d.department_name
+from employees e 
+join departments d on e.department_id = d.department_id
+join (
+	select department_id, count(*) as emp_count
+    from employees
+    group by department_id
+    having count(*) > 1
+    
+) as dept_counts on dept_counts.department_id = e.department_id;
+
+select department_id, count(*) as emp_count
+    from employees
+    group by department_id
+    having count(*) > 1;
