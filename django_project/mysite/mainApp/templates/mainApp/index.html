@@ -1,0 +1,19 @@
+{% extends 'mainApp/layout.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+    <div class="features">
+        <h1>{{ title }}</h1>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. A ab accusamus aliquam atque harum in, labore molestiae repellat unde voluptatibus.</p>
+        <button class="btn btn-secondary">Про меня</button>
+
+        {% for val in values %}
+            {% if val == 'Hello' %}
+                <p>{{ val|upper }}</p>
+            {% endif %}
+        {% endfor %}
+
+        {{ obj.age }}
+    </div>
+{% endblock %}
